@@ -17,13 +17,10 @@ func Connect() {
 	if err != nil {
 		log.Fatal("error loading env file")
 	}
-<<<<<<< HEAD
+
 	dsn := os.Getenv("DSN")
 	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-=======
-	//dsn := os.Getenv("DSN")
-	database, err := gorm.Open(mysql.Open("sql12720144:h2Hshk4hTg@tcp(sql12.freesqldatabase.com:3306)/sql12720144"), &gorm.Config{})
->>>>>>> 81769b484f6954f5119649d78760da1e1a5c6af3
+
 	if err != nil {
 		panic("could not connect to db")
 	} else {
