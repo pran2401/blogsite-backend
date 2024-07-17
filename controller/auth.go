@@ -18,30 +18,52 @@ func Register(c *fiber.Ctx) error {
 	var data map[string]interface{}
 	var userdata models.User
 	if err := c.BodyParser(&data); err != nil {
-		fmt.Println(("unable to parse"))
+		fmt.Println("unable to parse")
+		return c.Status(400).JSON(fiber.Map{"message": "Unable to parse request body"})
 	}
-	if len(data["password"].(string)) <= 5 {
+
+	password, ok := data["password"].(string)
+	if !ok {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid password format"})
+	}
+
+	if len(password) <= 5 {
 		c.Status(400)
 		return c.JSON(fiber.Map{"message": "password must be more than 5 letters"})
 	}
 
-	database.DB.Where("email =?", strings.TrimSpace(data["email"].(string))).First(&userdata)
+	email, ok := data["email"].(string)
+	if !ok {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid email format"})
+	}
+
+	database.DB.Where("email =?", strings.TrimSpace(email)).First(&userdata)
 	if userdata.Id != 0 {
 		c.Status(400)
 		return c.JSON(fiber.Map{"message": "already exits"})
 	}
+
+	firstName, ok := data["firstname"].(string)
+	if !ok {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid first name format"})
+	}
+
+	lastName, ok := data["lastname"].(string)
+	if !ok {
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid last name format"})
+	}
+
 	user := models.User{
-		Firstname: data["first_name"].(string),
-		Lastname:  data["last_name"].(string),
-		Email:     data["email"].(string),
-		Password:  data["password"].(string),
+		Firstname: firstName,
+		Lastname:  lastName,
+		Email:     email,
+		Password:  password,
 	}
 
 	database.DB.Create(&user)
 
 	c.Status(200)
 	return c.JSON(fiber.Map{"user": user, "message": "acc created"})
-
 }
 
 func Login(c *fiber.Ctx) error {
